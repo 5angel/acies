@@ -1,0 +1,7 @@
+.root {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: rotateX(45deg) rotateZ(45deg) translateX(.6px);
+  transform-style: preserve-3d;
+}
