@@ -28,6 +28,25 @@ const MAP_ACTIONS = {
 };
 
 export default class Cube extends Component {
+  setBound(bound) {
+    this.bound = bound;
+  }
+
+  isAllowed(action) {
+    switch (action) {
+      case BACK:
+        return this.y > 0;
+      case FORWARD:
+        return this.y + 1 < this.bound;
+      case RIGHT:
+        return this.x > 0;
+      case LEFT:
+        return this.x + 1 < this.bound;
+      default:
+        return false;
+      }
+  }
+
   getAction(keyCode) {
     return MAP_ACTIONS[keyCode];
   }
@@ -100,6 +119,10 @@ export default class Cube extends Component {
 
     const action = this.actions[this.actions.length - 1];
 
+    if (!this.isAllowed(action)) {
+      return;
+    }
+
     switch (action) {
       case BACK:
         this.animateBack();
@@ -118,10 +141,10 @@ export default class Cube extends Component {
     }
   };
 
-
   x = 0;
   y = 0;
   root = null;
+  bound = Infinity;
   actions = [];
   animating = false;
 
