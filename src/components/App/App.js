@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import Cube from 'components/Cube';
+import Spike from 'components/Spike';
 
 import { TILE_SIZE } from 'misc/constants';
 
@@ -14,14 +15,8 @@ class App extends Component {
   };
 
   componentDidMount() {
-    this.updateBounds();
-
     window.addEventListener('keyup', this.handleKeyUp);
     window.addEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentDidUpdate() {
-    this.updateBounds();
   }
 
   componentWillUnmount() {
@@ -29,21 +24,31 @@ class App extends Component {
     window.removeEventListener('keydown', this.handleKeyDown);
   }
 
-  updateBounds() {
-    this.player.setBound(this.state.size);
+  isOutOfBounds(x, y) {
+    const { size } = this.state;
+    return x < 0 || y < 0 || x >= size || y >= size;
+  }
+
+  isColliding(x, y) {
+    return this.objects.some(obj => obj.collides(x, y));
   }
 
   handleKeyUp = ({ keyCode }) => this.player.removeAction(keyCode);
   handleKeyDown = ({ keyCode }) => this.player.addAction(keyCode);
 
+  handlePlayerMove = (x, y) => {
+    if (this.isOutOfBounds(x, y) || this.isColliding(x, y)) {
+      return false;
+    }
+
+    return true;
+  };
+
   player = null;
+  objects = [];
 
   render() {
     const { size } = this.state;
-
-    if (this.player) {
-      this.player.setBound(size);
-    }
 
     const planeStyle = {
       width: size * TILE_SIZE,
@@ -58,7 +63,35 @@ class App extends Component {
           style={planeStyle}
           className={classes.plane}
         >
-          <Cube ref={ref => (this.player = ref)} />
+          <Cube
+            ref={ref => (this.player = ref)}
+            onMove={this.handlePlayerMove}
+          />
+          <Spike
+            x={2}
+            y={3}
+            ref={ref => (this.objects[0] = ref)}
+          />
+          <Spike
+            x={5}
+            y={5}
+            ref={ref => (this.objects[1] = ref)}
+          />
+          <Spike
+            x={2}
+            y={4}
+            ref={ref => (this.objects[2] = ref)}
+          />
+          <Spike
+            x={0}
+            y={1}
+            ref={ref => (this.objects[3] = ref)}
+          />
+          <Spike
+            x={2}
+            y={7}
+            ref={ref => (this.objects[4] = ref)}
+          />
         </div>
       </div>
     );

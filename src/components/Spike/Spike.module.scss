@@ -1,0 +1,41 @@
+$size: 60px;
+$duration: 300ms;
+
+$medium: salmon;
+$dark: indianred;
+
+.root,
+.face {
+  width: $size;
+  height: $size;
+}
+
+.root {
+  position: absolute;
+  transform-style: preserve-3d;
+  background-color: $medium;
+}
+
+.face {
+  position: absolute;
+  box-sizing: border-box;
+  transition: all $duration;
+
+  &.right {
+    right: 0;
+    transform: rotateY(65deg) translateX(-0.5px);
+    transform-origin: 100% 100%;
+    border: $size / 2 solid transparent;
+    border-right: $size * 1.2 solid $medium;
+    border-left-width: 0;
+  }
+
+  &.left {
+    bottom: 0;
+    transform: rotateX(-65deg);
+    transform-origin: 100% 100%;
+    border: $size / 2 solid transparent;
+    border-bottom: $size * 1.2 solid $dark;
+    border-top-width: 0;
+  }
+}

@@ -13,7 +13,7 @@ $dark: chocolate;
 }
 
 .root {
-  position: relative;
+  position: absolute;
   transform: rotateZ(0deg) translateZ($size);
   transform-style: preserve-3d;
   background-color: $light;

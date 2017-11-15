@@ -28,23 +28,19 @@ const MAP_ACTIONS = {
 };
 
 export default class Cube extends Component {
-  setBound(bound) {
-    this.bound = bound;
+  static defaultProps = {
+    x: 0,
+    y: 0,
+  };
+
+  componentWillMount() {
+    const { x, y } = this.props;
+    this.x = x;
+    this.y = y;
   }
 
-  isAllowed(action) {
-    switch (action) {
-      case BACK:
-        return this.y > 0;
-      case FORWARD:
-        return this.y + 1 < this.bound;
-      case RIGHT:
-        return this.x > 0;
-      case LEFT:
-        return this.x + 1 < this.bound;
-      default:
-        return false;
-      }
+  componentDidMount() {
+    this.reset();
   }
 
   getAction(keyCode) {
@@ -94,6 +90,12 @@ export default class Cube extends Component {
     this.animate(1, 0, classes.west);
   }
 
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+    this.reset();
+  }
+
   reset = () => {
     this.animating = false;
 
@@ -112,14 +114,31 @@ export default class Cube extends Component {
     setTimeout(this.checkActions, RENDER_DELAY);
   };
 
+  getNextPosition(action) {
+    switch (action) {
+      case BACK:
+        return [this.x, this.y - 1];
+      case FORWARD:
+        return [this.x, this.y + 1];
+      case RIGHT:
+        return [this.x - 1, this.y];
+      case LEFT:
+        return [this.x + 1, this.y];
+      default:
+        return [this.x, this.y];
+    }
+  }
+
   checkActions = () => {
     if (this.animating) {
       return;
     }
 
     const action = this.actions[this.actions.length - 1];
+    const position = this.getNextPosition(action);
+    const { onMove } = this.props;
 
-    if (!this.isAllowed(action)) {
+    if (onMove && !onMove(...position)) {
       return;
     }
 
@@ -144,7 +163,6 @@ export default class Cube extends Component {
   x = 0;
   y = 0;
   root = null;
-  bound = Infinity;
   actions = [];
   animating = false;
 
