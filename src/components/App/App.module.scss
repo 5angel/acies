@@ -1,6 +1,17 @@
 $width: 848px;
 $height: 50vh;
 
+$backgroundColor1: darkslateblue;
+$backgroundColor2: darkorange;
+$backgroundColor3: limegreen;
+
+@keyframes backgroundAnimation {
+  0%   {background-color: $backgroundColor1;}
+  33%  {background-color: $backgroundColor2;}
+  66%  {background-color: $backgroundColor3;}
+  100% {background-color: $backgroundColor1;}
+}
+
 .root {
   display: flex;
   width: 100vw;
@@ -8,6 +19,9 @@ $height: 50vh;
   align-items: center;
   justify-content: center;
   background-color: darkslateblue;
+  animation-name: backgroundAnimation;
+  animation-duration: 360s;
+  animation-iteration-count: infinite;
 }
 
 .plane {
