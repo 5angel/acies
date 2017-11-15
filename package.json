@@ -4,8 +4,9 @@
   "private": true,
   "homepage": "https://5angel.github.io/acies",
   "devDependencies": {
-    "gh-pages": "^1.0.0",
-    "custom-react-scripts": "0.2.1"
+    "cross-env": "^5.1.1",
+    "custom-react-scripts": "0.2.1",
+    "gh-pages": "^1.0.0"
   },
   "dependencies": {
     "classnames": "^2.2.5",
@@ -19,8 +20,5 @@
     "build": "cross-env NODE_PATH=src react-scripts build",
     "test": "cross-env NODE_PATH=src react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "devDependencies": {
-    "cross-env": "^5.1.1"
   }
 }
