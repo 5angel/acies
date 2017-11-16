@@ -30,12 +30,8 @@ export default class Cube extends Figure {
     this.checkActions();
   }
 
-  getAction(keyCode) {
-    return MAP_ACTIONS[keyCode];
-  }
-
   addAction(keyCode) {
-    const action = this.getAction(keyCode);
+    const action = MAP_ACTIONS[keyCode];
 
     if (!this.actions.includes(action)) {
       this.actions.push(action);
@@ -44,7 +40,7 @@ export default class Cube extends Figure {
   }
 
   removeAction(keyCode) {
-    const action = this.getAction(keyCode);
+    const action = MAP_ACTIONS[keyCode];
     const index = this.actions.indexOf(action);
 
     if (index !== -1) {
