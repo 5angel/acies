@@ -1,11 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import {
-  RENDER_DELAY,
-  TRANSITION_END,
-} from 'misc/constants';
-
 import * as Keyboard from 'misc/keyboard';
 
 import Figure from 'components/Figure';
@@ -31,6 +26,10 @@ const MAP_ACTIONS = {
 export default class Cube extends Figure {
   static defaultClassName = classes.root;
 
+  animationDidEnd() {
+    this.checkActions();
+  }
+
   getAction(keyCode) {
     return MAP_ACTIONS[keyCode];
   }
@@ -53,15 +52,6 @@ export default class Cube extends Figure {
     }
   }
 
-  animate(x = 0, y = 0, className) {
-    this.x += x;
-    this.y += y;
-    this.animating = true;
-    this.root.className = classNames(classes.root, className);
-
-    this.root.addEventListener(TRANSITION_END, this.handleTransitionEnd);
-  }
-
   animateBack() {
     this.animate(0, -1, classes.south);
   }
@@ -78,13 +68,6 @@ export default class Cube extends Figure {
     this.animate(1, 0, classes.west);
   }
 
-  handleTransitionEnd = ({ propertyName }) => {
-    this.root.removeEventListener(TRANSITION_END, this.handleTransitionEnd);
-    this.reset();
-    // wait for styles to apply
-    setTimeout(this.checkActions, RENDER_DELAY);
-  };
-
   getNextPosition(action) {
     switch (action) {
       case BACK:
@@ -100,7 +83,7 @@ export default class Cube extends Figure {
     }
   }
 
-  checkActions = () => {
+  checkActions() {
     if (this.animating) {
       return;
     }
