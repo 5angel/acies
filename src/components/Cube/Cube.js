@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 import {
-  TILE_SIZE,
   RENDER_DELAY,
   TRANSITION_END,
 } from 'misc/constants';
 
 import * as Keyboard from 'misc/keyboard';
+
+import Figure from 'components/Figure';
 
 import classes from './Cube.module.scss';
 
@@ -27,21 +28,8 @@ const MAP_ACTIONS = {
   [Keyboard.DOWN]: LEFT,
 };
 
-export default class Cube extends Component {
-  static defaultProps = {
-    x: 0,
-    y: 0,
-  };
-
-  componentWillMount() {
-    const { x, y } = this.props;
-    this.x = x;
-    this.y = y;
-  }
-
-  componentDidMount() {
-    this.reset();
-  }
+export default class Cube extends Figure {
+  static defaultClassName = classes.root;
 
   getAction(keyCode) {
     return MAP_ACTIONS[keyCode];
@@ -88,23 +76,6 @@ export default class Cube extends Component {
 
   animateLeft() {
     this.animate(1, 0, classes.west);
-  }
-
-  setPosition(x, y) {
-    this.x = x;
-    this.y = y;
-    this.reset();
-  }
-
-  reset = () => {
-    this.animating = false;
-
-    const top = this.x * TILE_SIZE;
-    const left = this.y * TILE_SIZE;
-
-    this.root.className = classes.root;
-    this.root.style.top = `${top}px`;
-    this.root.style.left = `${left}px`;
   }
 
   handleTransitionEnd = ({ propertyName }) => {
@@ -160,11 +131,8 @@ export default class Cube extends Component {
     }
   };
 
-  x = 0;
-  y = 0;
   root = null;
   actions = [];
-  animating = false;
 
   render() {
     return (
