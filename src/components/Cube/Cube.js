@@ -52,22 +52,6 @@ export default class Cube extends Figure {
     }
   }
 
-  animateBack() {
-    this.animate(0, -1, classes.south);
-  }
-
-  animateForward() {
-    this.animate(0, 1, classes.north);
-  }
-
-  animateRight() {
-    this.animate(-1, 0, classes.east);
-  }
-
-  animateLeft() {
-    this.animate(1, 0, classes.west);
-  }
-
   getNextPosition(action) {
     switch (action) {
       case BACK:
@@ -98,16 +82,16 @@ export default class Cube extends Figure {
 
     switch (action) {
       case BACK:
-        this.animateBack();
+        this.animate(0, -1, classes.south);
         break;
       case FORWARD:
-        this.animateForward();
+        this.animate(0, 1, classes.north);
         break;
       case RIGHT:
-        this.animateRight();
+        this.animate(-1, 0, classes.east);
         break;
       case LEFT:
-        this.animateLeft();
+        this.animate(1, 0, classes.west);
         break;
       default:
         return;
