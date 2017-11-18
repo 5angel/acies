@@ -2,16 +2,27 @@ import React, { Component } from 'react';
 
 import Cube from 'components/Cube';
 import Spike from 'components/Spike';
+import Sphere from 'components/Sphere';
 
+import * as Action from 'misc/action';
 import { TILE_SIZE } from 'misc/constants';
 
 import classes from './App.module.scss';
 
 const SIZE_DEFAULT = 10;
 
+const OBJECTS_DEFAULT = [{
+  x: 1,
+  y: 1,
+  id: 0,
+  type: Sphere,
+  onDestroyAction: Action.COLOR_SET,
+}];
+
 class App extends Component {
   state = {
     size: SIZE_DEFAULT,
+    objects: OBJECTS_DEFAULT,
   };
 
   componentDidMount() {
@@ -29,26 +40,62 @@ class App extends Component {
     return x < 0 || y < 0 || x >= size || y >= size;
   }
 
-  isColliding(x, y) {
-    return this.objects.some(obj => obj.collides(x, y));
+  collideWith(target, x, y) {
+    return Object
+      .values(this.cache)
+      .some(obj => obj.collides(x, y, target === this.player));
+  }
+
+  performAction(action, target, next) {
+    switch (action) {
+      case Action.COLOR_SET:
+        return this.player.setColor(target.props.color);
+      default:
+        return;
+    }
   }
 
   handleKeyUp = ({ keyCode }) => this.player.removeAction(keyCode);
   handleKeyDown = ({ keyCode }) => this.player.addAction(keyCode);
 
-  handlePlayerMove = (x, y) => {
-    if (this.isOutOfBounds(x, y) || this.isColliding(x, y)) {
+  handlePlayerMove = (player, x, y) => {
+    if (this.isOutOfBounds(x, y) || this.collideWith(player, x, y)) {
       return false;
     }
 
     return true;
   };
 
+  handlePlayerDestroy = () => {
+
+  };
+
+  handleObjectDestroy = (target) => {
+    const {
+      id: targetId,
+      onDestroyAction,
+    } = target.props;
+
+    if (onDestroyAction) {
+      this.performAction(onDestroyAction, target);
+    }
+
+    this.setState(({ objects }) => ({
+      objects: objects.filter(({ id }) => id !== targetId),
+    }), () => {
+      delete this.cache[targetId];
+    });
+  };
+
+  cache = {};
   player = null;
   objects = [];
 
   render() {
-    const { size } = this.state;
+    const {
+      size,
+      objects,
+    } = this.state;
 
     const planeStyle = {
       width: size * TILE_SIZE,
@@ -66,32 +113,21 @@ class App extends Component {
           <Cube
             ref={ref => (this.player = ref)}
             onMove={this.handlePlayerMove}
+            onDestroy={this.handlePlayerDestroy}
           />
-          <Spike
-            x={2}
-            y={3}
-            ref={ref => (this.objects[0] = ref)}
-          />
-          <Spike
-            x={5}
-            y={5}
-            ref={ref => (this.objects[1] = ref)}
-          />
-          <Spike
-            x={2}
-            y={4}
-            ref={ref => (this.objects[2] = ref)}
-          />
-          <Spike
-            x={0}
-            y={1}
-            ref={ref => (this.objects[3] = ref)}
-          />
-          <Spike
-            x={2}
-            y={7}
-            ref={ref => (this.objects[4] = ref)}
-          />
+          { objects.map(({
+            id,
+            type: ChildComponent,
+            ...other
+          }, index) => (
+            <ChildComponent
+              {...other}
+              id={id}
+              key={id}
+              ref={ref => (this.cache[id] = ref)}
+              onDestroy={this.handleObjectDestroy}
+            />
+          )) }
         </div>
       </div>
     );

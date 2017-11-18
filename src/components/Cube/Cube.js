@@ -2,32 +2,47 @@ import React from 'react';
 import classNames from 'classnames';
 
 import * as Keyboard from 'misc/keyboard';
+import * as Action from 'misc/action';
+import { COLOR_GREEN } from 'misc/constants';
 
 import Figure from 'components/Figure';
 
 import classes from './Cube.module.scss';
 
-const BACK = 0;
-const FORWARD = 1;
-const LEFT = 2;
-const RIGHT = 3;
-
 const MAP_ACTIONS = {
-  [Keyboard.D]: FORWARD,
-  [Keyboard.RIGHT]: FORWARD,
-  [Keyboard.A]: BACK,
-  [Keyboard.LEFT]: BACK,
-  [Keyboard.W]: RIGHT,
-  [Keyboard.UP]: RIGHT,
-  [Keyboard.S]: LEFT,
-  [Keyboard.DOWN]: LEFT,
+  [Keyboard.D]: Action.MOVE_FORWARD,
+  [Keyboard.RIGHT]: Action.MOVE_FORWARD,
+  [Keyboard.A]: Action.MOVE_BACK,
+  [Keyboard.LEFT]: Action.MOVE_BACK,
+  [Keyboard.W]: Action.MOVE_RIGHT,
+  [Keyboard.UP]: Action.MOVE_RIGHT,
+  [Keyboard.S]: Action.MOVE_LEFT,
+  [Keyboard.DOWN]: Action.MOVE_LEFT,
 };
 
 export default class Cube extends Figure {
   static defaultClassName = classes.root;
 
+  state = {
+    temp: 0,
+    color: null,
+  };
+
+  reset() {
+    const { color } = this.state;
+    const rootClassName = classNames(classes.root, {
+      [this.getColorClassName(color)]: typeof color === 'number',
+    });
+
+    super.reset(rootClassName);
+  }
+
   animationDidEnd() {
     this.checkActions();
+  }
+
+  setColor(color) {
+    this.setState({ color });
   }
 
   addAction(keyCode) {
@@ -49,17 +64,13 @@ export default class Cube extends Figure {
   }
 
   getNextPosition(action) {
+    const { x, y } = this;
     switch (action) {
-      case BACK:
-        return [this.x, this.y - 1];
-      case FORWARD:
-        return [this.x, this.y + 1];
-      case RIGHT:
-        return [this.x - 1, this.y];
-      case LEFT:
-        return [this.x + 1, this.y];
-      default:
-        return [this.x, this.y];
+      case Action.MOVE_BACK:    return [x, y - 1];
+      case Action.MOVE_FORWARD: return [x, y + 1];
+      case Action.MOVE_RIGHT:   return [x - 1, y];
+      case Action.MOVE_LEFT:    return [x + 1, y];
+      default:                  return [x, y];
     }
   }
 
@@ -72,37 +83,47 @@ export default class Cube extends Figure {
     const position = this.getNextPosition(action);
     const { onMove } = this.props;
 
-    if (onMove && !onMove(...position)) {
+    if (onMove && !onMove(this, ...position)) {
       return;
     }
 
+    const { color } = this.state;
+
+    const colorClassName = this.getColorClassName(color);
+
     switch (action) {
-      case BACK:
-        this.animate(0, -1, classes.south);
+      case Action.MOVE_BACK:
+        this.animate(0, -1, classes.south, colorClassName);
         break;
-      case FORWARD:
-        this.animate(0, 1, classes.north);
+      case Action.MOVE_FORWARD:
+        this.animate(0, 1, classes.north, colorClassName);
         break;
-      case RIGHT:
-        this.animate(-1, 0, classes.east);
+      case Action.MOVE_RIGHT:
+        this.animate(-1, 0, classes.east, colorClassName);
         break;
-      case LEFT:
-        this.animate(1, 0, classes.west);
+      case Action.MOVE_LEFT:
+        this.animate(1, 0, classes.west, colorClassName);
         break;
       default:
         return;
     }
   };
 
+  getColorClassName(color) {
+    switch (color) {
+      case COLOR_GREEN:
+        return classes.green;
+      default:
+        return;
+    }
+  }
+
   root = null;
   actions = [];
 
   render() {
     return (
-      <div
-        ref={ref => (this.root = ref)}
-        className={classes.root}
-      >
+      <div ref={ref => (this.root = ref)}>
         <div className={classNames(classes.face, classes.right)} />
         <div className={classNames(classes.face, classes.left)} />
         <div className={classNames(classes.face, classes.next)} />

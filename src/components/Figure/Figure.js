@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import {
@@ -8,6 +9,10 @@ import {
 } from 'misc/constants';
 
 export default class Spike extends Component {
+  static propTypes = {
+    onDestroy: PropTypes.func,
+  };
+
   static defaultProps = {
     x: 0,
     y: 0,
@@ -23,23 +28,28 @@ export default class Spike extends Component {
     this.reset();
   }
 
-  reset() {
+  destroy() {
+    this.props.onDestroy(this);
+  }
+
+  reset(className) {
     const top = this.x * TILE_SIZE;
     const left = this.y * TILE_SIZE;
 
     this.animating = false;
-    this.root.className = this.constructor.defaultClassName;
+    this.root.className = className || this.constructor.defaultClassName;
+    this.root.style.position = 'absolute';
     this.root.style.top = `${top}px`;
     this.root.style.left = `${left}px`;
   }
 
-  animate(x = 0, y = 0, className) {
+  animate(x = 0, y = 0, ...rest) {
     this.x += x;
     this.y += y;
     this.animating = true;
     this.root.className = classNames(
       this.constructor.defaultClassName,
-      className,
+      ...rest
     );
 
     this.root.addEventListener(TRANSITION_END, this.handleTransitionEnd);
