@@ -7,7 +7,7 @@ import { COLOR_GREEN } from 'misc/constants';
 import classes from './Sphere.module.scss';
 
 export default class Sphere extends Figure {
-  static defaultClassName = classes.root;
+  static rootClassName = classes.root;
 
   static defaultProps = {
     x: 0,
@@ -26,14 +26,9 @@ export default class Sphere extends Figure {
     return collided;
   }
 
-  render() {
+  getContent() {
     return (
-      <div
-        ref={ref => (this.root = ref)}
-        className={classes.root}
-      >
-        <div className={classes.shape} />
-      </div>
+      <div className={classes.shape} />
     );
   }
 }

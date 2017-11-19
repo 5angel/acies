@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -18,61 +18,69 @@ export default class Spike extends Component {
     y: 0,
   };
 
+  state = {
+    x: 0,
+    y: 0,
+    animationClassName: null,
+  };
+
   componentWillMount() {
     const { x, y } = this.props;
-    this.x = x;
-    this.y = y;
-  }
-
-  componentDidMount() {
-    this.reset();
+    this.setState({ x, y });
   }
 
   destroy() {
     this.props.onDestroy(this);
   }
 
-  reset(className) {
-    const top = this.x * TILE_SIZE;
-    const left = this.y * TILE_SIZE;
-
-    this.animating = false;
-    this.root.className = className || this.constructor.defaultClassName;
-    this.root.style.position = 'absolute';
-    this.root.style.top = `${top}px`;
-    this.root.style.left = `${left}px`;
-  }
-
-  animate(x = 0, y = 0, ...rest) {
-    this.x += x;
-    this.y += y;
+  animate(dx = 0, dy = 0, animationClassName) {
     this.animating = true;
-    this.root.className = classNames(
-      this.constructor.defaultClassName,
-      ...rest
-    );
+    this.setState({ animationClassName });
 
-    this.root.addEventListener(TRANSITION_END, this.handleTransitionEnd);
+    const onTransitionEnd = () => {
+      this.root.removeEventListener(TRANSITION_END, onTransitionEnd);
+      this.setState(({ x, y }) => ({
+        x: x + dx,
+        y: y + dy,
+        animationClassName: null,
+      }), this.setRenderTimeout);
+    };
+
+    this.root.addEventListener(TRANSITION_END, onTransitionEnd);
   }
 
-  collides(x, y) {
-    return x === this.x && y === this.y;
+  collides(targetX, targetY) {
+    const { x, y } = this.state;
+    return x === targetX && y === targetY;
   }
 
   setPosition(x, y) {
-    this.x = x;
-    this.y = y;
-    this.reset();
+    this.setState({ x, y });
   }
 
-  handleTransitionEnd = ({ propertyName }) => {
-    this.root.removeEventListener(TRANSITION_END, this.handleTransitionEnd);
-    this.reset();
-    // wait for styles to apply
-    setTimeout(this.handleRenderTimeout, RENDER_DELAY);
-  };
+  getClassName() {
+    const { animationClassName } = this.state;
+    return classNames(this.constructor.rootClassName, {
+      [animationClassName]: animationClassName != null,
+    });
+  }
+
+  getRootStyle() {
+    return {
+      position: 'absolute',
+      top: this.state.x * TILE_SIZE,
+      left: this.state.y * TILE_SIZE,
+    };
+  }
+
+  getContent() {
+    return null;
+  }
+
+  setRenderTimeout = () => setTimeout(this.handleRenderTimeout, RENDER_DELAY);
 
   handleRenderTimeout = () => {
+    this.animating = false;
     if (this.animationDidEnd) {
       this.animationDidEnd();
     }
@@ -84,6 +92,14 @@ export default class Spike extends Component {
   animating = false;
 
   render() {
-    return null;
+    return (
+      <div
+        ref={ref => (this.root = ref)}
+        style={this.getRootStyle()}
+        className={this.getClassName()}
+      >
+        { this.getContent() }
+      </div>
+    )
   }
 }

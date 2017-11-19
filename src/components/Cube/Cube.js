@@ -21,28 +21,22 @@ const MAP_ACTIONS = {
 };
 
 export default class Cube extends Figure {
-  static defaultClassName = classes.root;
+  static rootClassName = classes.root;
 
   state = {
-    temp: 0,
-    color: null,
+    x: 0,
+    y: 0,
+    colorClassName: null,
+    animationClassName: null,
   };
-
-  reset() {
-    const { color } = this.state;
-    const rootClassName = classNames(classes.root, {
-      [this.getColorClassName(color)]: typeof color === 'number',
-    });
-
-    super.reset(rootClassName);
-  }
 
   animationDidEnd() {
     this.checkActions();
   }
 
   setColor(color) {
-    this.setState({ color });
+    const colorClassName = this.getColorClassName(color);
+    this.setState({ colorClassName });
   }
 
   addAction(keyCode) {
@@ -64,7 +58,7 @@ export default class Cube extends Figure {
   }
 
   getNextPosition(action) {
-    const { x, y } = this;
+    const { x, y } = this.state;
     switch (action) {
       case Action.MOVE_BACK:    return [x, y - 1];
       case Action.MOVE_FORWARD: return [x, y + 1];
@@ -87,22 +81,18 @@ export default class Cube extends Figure {
       return;
     }
 
-    const { color } = this.state;
-
-    const colorClassName = this.getColorClassName(color);
-
     switch (action) {
       case Action.MOVE_BACK:
-        this.animate(0, -1, classes.south, colorClassName);
+        this.animate(0, -1, classes.south);
         break;
       case Action.MOVE_FORWARD:
-        this.animate(0, 1, classes.north, colorClassName);
+        this.animate(0, 1, classes.north);
         break;
       case Action.MOVE_RIGHT:
-        this.animate(-1, 0, classes.east, colorClassName);
+        this.animate(-1, 0, classes.east);
         break;
       case Action.MOVE_LEFT:
-        this.animate(1, 0, classes.west, colorClassName);
+        this.animate(1, 0, classes.west);
         break;
       default:
         return;
@@ -118,16 +108,35 @@ export default class Cube extends Figure {
     }
   }
 
+  getClassName() {
+    const {
+      colorClassName,
+      animationClassName,
+    } = this.state;
+
+    return classNames(this.constructor.rootClassName, {
+      [colorClassName]: colorClassName != null,
+      [animationClassName]: animationClassName != null,
+    });
+  }
+
+  getContent() {
+    return [
+      <div
+        key="right"
+        className={classNames(classes.face, classes.right)}
+      />,
+      <div
+        key="left"
+        className={classNames(classes.face, classes.left)}
+      />,
+      <div
+        key="next"
+        className={classNames(classes.face, classes.next)}
+      />,
+    ];
+  }
+
   root = null;
   actions = [];
-
-  render() {
-    return (
-      <div ref={ref => (this.root = ref)}>
-        <div className={classNames(classes.face, classes.right)} />
-        <div className={classNames(classes.face, classes.left)} />
-        <div className={classNames(classes.face, classes.next)} />
-      </div>
-    );
-  }
 }
